@@ -335,12 +335,17 @@ _Rejected:_ a generator; prompting for a language; deferring to Phase 8.
 | **Micro-module check**               | `Stop` or CI                                                                                            | single export, under N lines, exactly one importer → flag for inlining                    | warn                                              |
 | **Root budget**                      | `PostToolUse` on `Edit\|Write` of `CLAUDE.md`, `CONTEXT-MAP.md`, `CONTEXT.md`                           | measure root `CLAUDE.md` plus imports against 6 KB (D63)                                  | warn                                              |
 | **PHP format and lint** _(Phase 4)_ | `PostToolUse` on `Edit\|Write` of `*.php`                                                               | `php-cs-fixer` and `php -l` inside `php:<production>-cli`, on the changed file only (D60) | feeds errors back                                 |
+| **Account gate**                     | `UserPromptSubmit`                                                                                      | signed-in Claude account must match the `origin` owner's account (D75)                    | **BLOCK**                                         |
 
 **D30.** The **dependency gate is the most important artefact in the design.** D3 settled on default-deny, and we both knew the prose version is something a model talks past. A `PreToolUse` hook cannot be talked past. That single hook converts Dev0 from a philosophy into a property of the machine. It is **global**, not opt-in: a Dev0 rule that is off in new repos is off exactly where dependencies get added.
 
 **D31.** The completion gate is the `/harness` idea done correctly. `platform`'s root `AGENTS.md` has instructed self-verification for months against a skill that cannot resolve. A `Stop` hook runs whether or not the agent remembers. `verify.js` is redundant and deleted -- `npm run lint`, `typecheck` and `test` already exist and are better.
 
 **D32.** Hooks fire on the **tool call**, so they apply regardless of which context window issued it. This is the strongest argument for putting Dev0's teeth in hooks rather than prose: hooks do not care whether a subagent inherited your rules.
+
+**D75 -- Account gate: the Claude account must match the repo's owner.** _Added 2026-09-27._ Two subscriptions: `troy.forster@gmail.com` for personal work, `forster@cpc-ccp.com` for CPC. The `origin` owner decides which applies: `tforster` is personal, `Canadian-Pork-Council` (every CPC repo) is CPC. The map lives in `dev0.json` (`accounts: { "<github owner>": "<claude email>" }`), so a new owner is a config entry. A global `UserPromptSubmit` hook reads `oauthAccount.emailAddress` from `~/.claude.json` and the owner from `git remote get-url origin`. On a mismatch it blocks and names the account to switch to (`/logout`, `/login`); a session cannot change its own account. No repo, no `origin`, or an owner not in the map: pass silently.
+
+_Rejected:_ `SessionStart` (can only warn, and a warning scrolls past); a rule in prose (the model cannot see which account it runs under unless told, and cannot fix it anyway); inferring from the directory path (clones move, remotes do not).
 
 ## 10. Trackers
 
@@ -398,6 +403,10 @@ _Rejected:_ proposal-only and commit-locally (a pile of unpushed diffs is a revi
 **D72 -- Paca-triggered agents: one per project, deferred.** _Added 2026-09-13._ The loop is our own worker driven by the `tracker` skill, so it behaves the same on Jira, Paca and ADO. Paca's ACP agents (a Paca agent served by a local `paca-acp-bridge`) start work the moment a task is assigned, bypassing the eligibility gate (D37) and the refusal (D43), and exist only for Paca. Until the loop exists, nothing is assigned to a Paca agent; tasks are driven by hand-started sessions. When Paca agents are adopted, it is **one agent per project**: a bridge serves one agent in one workspace, and only a repo-root workspace loads that project's hooks, `.mcp.json` (D69) and cascade. At that point, decide whether the agent is the loop's Paca trigger (running the gate first) or ad hoc chat only.
 
 _Rejected:_ one shared Paca-wide agent (its workspace must be a parent directory, so project settings and MCP do not load; with permissions auto-approved, one project's task can edit every repo; one token for all projects); setting up bridges now (Paca-only machinery ahead of the tracker-agnostic loop).
+
+**D73 -- `main` holds one commit per epic.** _Added 2026-09-27._ Task and story commits stay local (or on the PR branch) while the epic is open, and are squashed into one commit when it closes; only that commit is pushed to `main`. The tracker keeps the task-level history, so `main` stays readable as a list of delivered outcomes.
+
+**D74 -- The squashed commit takes the epic's title.** _Added 2026-09-27._ Epics are titled by the outcome they deliver (e.g. `Capabilities becomes dev0`, `Create core enforcement hooks`), not by phase number, so the log on `main` says what each commit delivered. Phase order lives in the tracker.
 
 ## 12. Agents and models
 
