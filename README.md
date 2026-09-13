@@ -14,7 +14,7 @@ _Single source of truth for workstation-global AI skills, agents, and instructio
 
 ## About
 
-`capabilities` is a personal, single-harness (Claude-only) tool that keeps `traits/{skills,agents,rules}` in sync across machines and symlinks them into `~/.claude/`.
+`capabilities` is a personal, single-harness (Claude-only) tool that keeps `install/{skills,agents,rules}` in sync across machines and symlinks them into `~/.claude/`.
 
 It exists because skill, agent, and instruction files had accumulated independently across `~/.claude/skills` and `~/.copilot/skills` through a history of switching harnesses (Copilot → pi → Claude), with no single source of truth, no standard format, and no way to keep them consistent across machines.
 
@@ -37,7 +37,7 @@ git clone <repo-url> capabilities
 cd capabilities
 npm install
 
-# Symlink traits/{skills,agents,rules} into ~/.claude/
+# Symlink install/{skills,agents,rules} into ~/.claude/
 capabilities install claude
 
 # Check what's currently linked
@@ -46,7 +46,7 @@ capabilities status
 # Pull/push changes across machines
 capabilities sync
 
-# Scaffold a new skill under traits/skills/
+# Scaffold a new skill under install/skills/
 capabilities new skill <name>
 ```
 

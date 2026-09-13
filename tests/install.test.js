@@ -19,7 +19,7 @@ import { install, uninstall } from "../lib/install.js";
 
 /**
  * Builds an isolated fixture: a fake capabilities repo root (with populated
- * traits/{skills,agents,rules} content) and a fake home directory to install into.
+ * install/{skills,agents,rules} content) and a fake home directory to install into.
  *
  * @returns {Promise<{root: string, capabilitiesRoot: string, home: string}>} Fixture paths.
  */
@@ -27,9 +27,9 @@ async function makeFixture() {
   const root = await mkdtemp(path.join(tmpdir(), "capabilities-"));
   const capabilitiesRoot = path.join(root, "repo");
   const home = path.join(root, "home");
-  await mkdir(path.join(capabilitiesRoot, "traits", "skills"), { recursive: true });
-  await mkdir(path.join(capabilitiesRoot, "traits", "agents"), { recursive: true });
-  await mkdir(path.join(capabilitiesRoot, "traits", "rules"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "skills"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "agents"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "rules"), { recursive: true });
   return { root, capabilitiesRoot, home };
 }
 
@@ -59,7 +59,7 @@ describe("install", () => {
     const stats = await lstat(linkPath);
     assert.ok(stats.isSymbolicLink(), "expected a symlink");
     const target = await readlink(linkPath);
-    assert.strictEqual(path.resolve(path.dirname(linkPath), target), path.join(capabilitiesRoot, "traits", "skills"));
+    assert.strictEqual(path.resolve(path.dirname(linkPath), target), path.join(capabilitiesRoot, "install", "skills"));
 
     await rm(root, { recursive: true, force: true });
   });
@@ -81,7 +81,7 @@ describe("install", () => {
     assert.ok(stats.isSymbolicLink(), "expected a symlink");
     assert.strictEqual(
       path.resolve(path.dirname(linkPath), await readlink(linkPath)),
-      path.join(capabilitiesRoot, "traits", "agents")
+      path.join(capabilitiesRoot, "install", "agents")
     );
 
     await rm(root, { recursive: true, force: true });
@@ -104,7 +104,7 @@ describe("install", () => {
     assert.ok(stats.isSymbolicLink(), "expected a symlink");
     assert.strictEqual(
       path.resolve(path.dirname(linkPath), await readlink(linkPath)),
-      path.join(capabilitiesRoot, "traits", "rules")
+      path.join(capabilitiesRoot, "install", "rules")
     );
 
     await rm(root, { recursive: true, force: true });
@@ -146,7 +146,7 @@ describe("install", () => {
     assert.ok(stats.isSymbolicLink(), "expected a symlink");
     assert.strictEqual(
       path.resolve(path.dirname(linkPath), await readlink(linkPath)),
-      path.join(capabilitiesRoot, "traits", "skills")
+      path.join(capabilitiesRoot, "install", "skills")
     );
 
     await rm(root, { recursive: true, force: true });

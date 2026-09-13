@@ -13,7 +13,7 @@ import { status } from "../lib/status.js";
 
 /**
  * Builds an isolated fixture: a fake capabilities repo root (with populated
- * traits/{skills,agents,rules} content) and a fake home directory to inspect.
+ * install/{skills,agents,rules} content) and a fake home directory to inspect.
  *
  * @returns {Promise<{root: string, capabilitiesRoot: string, home: string}>} Fixture paths.
  */
@@ -21,9 +21,9 @@ async function makeFixture() {
   const root = await mkdtemp(path.join(tmpdir(), "capabilities-status-"));
   const capabilitiesRoot = path.join(root, "repo");
   const home = path.join(root, "home");
-  await mkdir(path.join(capabilitiesRoot, "traits", "skills"), { recursive: true });
-  await mkdir(path.join(capabilitiesRoot, "traits", "agents"), { recursive: true });
-  await mkdir(path.join(capabilitiesRoot, "traits", "rules"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "skills"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "agents"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "rules"), { recursive: true });
   return { root, capabilitiesRoot, home };
 }
 

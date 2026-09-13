@@ -9,5 +9,5 @@
     "builtin": true,
     "node": true
   },
-  "ignorePatterns": ["traits/**"]
+  "ignorePatterns": ["install/**"]
 }

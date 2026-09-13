@@ -16,7 +16,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 
 /**
  * Builds a standalone copy of the CLI (bin + lib, symlinked node_modules)
- * plus a fake capabilities.yaml and traits/{skills,agents,rules}, isolated
+ * plus a fake capabilities.yaml and install/{skills,agents,rules}, isolated
  * from the real repo.
  *
  * @returns {Promise<{root: string, cliPath: string, home: string}>} Fixture paths.
@@ -29,9 +29,9 @@ async function makeFixture() {
   await chmod(path.join(root, "bin", "capabilities"), 0o755);
   await symlink(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"), "dir");
 
-  await mkdir(path.join(root, "traits", "skills"), { recursive: true });
-  await mkdir(path.join(root, "traits", "agents"), { recursive: true });
-  await mkdir(path.join(root, "traits", "rules"), { recursive: true });
+  await mkdir(path.join(root, "install", "skills"), { recursive: true });
+  await mkdir(path.join(root, "install", "agents"), { recursive: true });
+  await mkdir(path.join(root, "install", "rules"), { recursive: true });
 
   const home = path.join(root, "home");
   await writeFile(
@@ -119,7 +119,7 @@ describe("bin/capabilities", () => {
     const { stdout } = await run(process.execPath, [cliPath, "new", "skill", "my-skill"]);
     assert.match(stdout, /Created traits\/skills\/my-skill\/SKILL\.md/);
 
-    const content = await readFile(path.join(root, "traits", "skills", "my-skill", "SKILL.md"), "utf8");
+    const content = await readFile(path.join(root, "install", "skills", "my-skill", "SKILL.md"), "utf8");
     assert.match(content, /name: my-skill/);
 
     await rm(root, { recursive: true, force: true });

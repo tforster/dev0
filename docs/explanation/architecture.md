@@ -35,7 +35,7 @@ capabilities/
 ├── bin/
 │   └── capabilities         # CLI entry point, symlinked into ~/bin
 ├── lib/                     # CLI implementation, one module per concern
-├── traits/                  # nod to trAIt (§2) — everything installed into a harness
+├── install/                 # nod to trAIt (§2) — everything installed into a harness
 │   ├── skills/
 │   │   └── <skill-name>/SKILL.md
 │   ├── agents/
@@ -45,7 +45,7 @@ capabilities/
 └── prd.md
 ```
 
-`skills/`, `agents/`, `rules/` live under one `traits/` parent, kept visually and structurally distinct from `docs/`, `test/`, `lib/`, and the rest of the tooling.
+`skills/`, `agents/`, `rules/` live under one `install/` parent, kept visually and structurally distinct from `docs/`, `tests/`, `lib/`, and the rest of the tooling.
 
 ## 4. `capabilities.yaml`
 
@@ -77,13 +77,13 @@ A category missing under a harness means "not applicable," not an error.
 
 ## 6. Install Model: Plain Symlink, Everywhere
 
-`skills/`, `agents/`, and `rules/` all use the same model: `lib/install.js` symlinks each whole directory into the harness's configured path. `capabilities install claude` produces `~/.claude/skills`, `~/.claude/agents`, `~/.claude/rules` — each a directory symlink into `traits/`. One rule, three categories, no exceptions, no per-category code.
+`skills/`, `agents/`, and `rules/` all use the same model: `lib/install.js` symlinks each whole directory into the harness's configured path. `capabilities install claude` produces `~/.claude/skills`, `~/.claude/agents`, `~/.claude/rules` — each a directory symlink into `install/`. One rule, three categories, no exceptions, no per-category code.
 
 Agent files are plain Claude-native frontmatter (`name`, `description`, optionally `tools`/`model`) — no per-harness variation, since Claude is the only harness `capabilities` installs for (§2).
 
 ## 7. Rules and Claude's `paths:` Scoping
 
-`traits/rules/` is flat — every file in it is an independent topic file, symlinked wholesale to `~/.claude/rules/`. Claude scopes a rule file to specific paths via `paths:` frontmatter; a rule file without it loads unconditionally on every session. `capabilities` doesn't manage or validate that frontmatter — it's just markdown content being symlinked, same as everything else in `traits/`.
+`install/rules/` is flat — every file in it is an independent topic file, symlinked wholesale to `~/.claude/rules/`. Claude scopes a rule file to specific paths via `paths:` frontmatter; a rule file without it loads unconditionally on every session. `capabilities` doesn't manage or validate that frontmatter — it's just markdown content being symlinked, same as everything else in `install/`.
 
 ## 8. Atomic Install
 

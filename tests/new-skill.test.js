@@ -18,17 +18,17 @@ import { newSkill } from "../lib/new-skill.js";
 async function makeFixture() {
   const root = await mkdtemp(path.join(tmpdir(), "capabilities-new-skill-"));
   const capabilitiesRoot = path.join(root, "repo");
-  await mkdir(path.join(capabilitiesRoot, "traits", "skills"), { recursive: true });
+  await mkdir(path.join(capabilitiesRoot, "install", "skills"), { recursive: true });
   return { root, capabilitiesRoot };
 }
 
 describe("newSkill", () => {
-  it("creates traits/skills/<name>/SKILL.md with valid frontmatter", async () => {
+  it("creates install/skills/<name>/SKILL.md with valid frontmatter", async () => {
     const { root, capabilitiesRoot } = await makeFixture();
 
     await newSkill("my-new-skill", { capabilitiesRoot });
 
-    const content = await readFile(path.join(capabilitiesRoot, "traits", "skills", "my-new-skill", "SKILL.md"), "utf8");
+    const content = await readFile(path.join(capabilitiesRoot, "install", "skills", "my-new-skill", "SKILL.md"), "utf8");
     assert.match(content, /^---\nname: my-new-skill\ndescription: .+\n---\n/);
 
     await rm(root, { recursive: true, force: true });
