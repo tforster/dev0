@@ -48,7 +48,7 @@ async function main() {
 
   if (command === "status") {
     const config = await loadConfig(path.join(repoRoot, "dev0.json"));
-    const report = await status({ config, capabilitiesRoot: repoRoot });
+    const report = await status({ config, toolkitRoot: repoRoot });
     printStatus(report);
     return;
   }
@@ -60,7 +60,7 @@ async function main() {
   }
 
   if (command === "new" && arg1 === "skill") {
-    await newSkill(arg2, { capabilitiesRoot: repoRoot });
+    await newSkill(arg2, { toolkitRoot: repoRoot });
     console.log(`Created install/skills/${arg2}/SKILL.md.`);
     return;
   }
@@ -75,11 +75,11 @@ async function main() {
 
   const scope = harnessName ?? "all harnesses";
   if (command === "install") {
-    await install(harnessName, { config, capabilitiesRoot: repoRoot });
+    await install(harnessName, { config, toolkitRoot: repoRoot });
     console.log(`Installed ${scope}.`);
     if (config.bin) warnIfNotOnPath(path.dirname(config.bin));
   } else {
-    await uninstall(harnessName, { config, capabilitiesRoot: repoRoot });
+    await uninstall(harnessName, { config, toolkitRoot: repoRoot });
     console.log(`Uninstalled ${scope}.`);
   }
 }

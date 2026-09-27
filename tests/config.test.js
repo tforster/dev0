@@ -17,7 +17,7 @@ describe("loadConfig", () => {
   let configPath;
 
   beforeEach(async () => {
-    root = await mkdtemp(path.join(tmpdir(), "capabilities-config-"));
+    root = await mkdtemp(path.join(tmpdir(), "dev0-config-"));
     configPath = path.join(root, "dev0.json");
   });
 

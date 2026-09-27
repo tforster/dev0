@@ -1,7 +1,7 @@
 {
   "name": "dev0",
   "version": "0.1.0",
-  "description": "Single source of truth for workstation-global AI skills, agents, and instructions across coding harnesses.",
+  "description": "The Dev0 toolkit: skills, agents, rules and tooling that deliver the Dev0 workflow, synced across machines.",
   "license": "MIT",
   "bin": {
     "dev0": "./bin/dev0"

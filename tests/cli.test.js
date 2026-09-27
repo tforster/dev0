@@ -22,7 +22,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
  * @returns {Promise<{root: string, cliPath: string, home: string}>} Fixture paths.
  */
 async function makeFixture() {
-  const root = await mkdtemp(path.join(tmpdir(), "capabilities-cli-"));
+  const root = await mkdtemp(path.join(tmpdir(), "dev0-cli-"));
   await cp(path.join(repoRoot, "lib"), path.join(root, "lib"), { recursive: true });
   await mkdir(path.join(root, "bin"), { recursive: true });
   await cp(path.join(repoRoot, "bin", "dev0"), path.join(root, "bin", "dev0"));
