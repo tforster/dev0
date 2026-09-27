@@ -64,19 +64,17 @@ Documentation follows the [Diátaxis framework](https://diataxis.fr):
 
 - **[Tutorials](./docs/tutorials/README.md)** — step-by-step guides for getting started
 - **[How-To Guides](./docs/how-to/README.md)** — practical guides for specific tasks
-- **[Reference](./docs/reference/README.md)** — specs, the PRD, and the issue tracker
+- **[Reference](./docs/reference/README.md)** — specs and the PRD
 - **[Explanation](./docs/explanation/README.md)** — architecture and design rationale
 
 📚 **Start here:** [Documentation Index](./docs/README.md)
 
 > [!NOTE]
-> Tutorials and how-to guides are still stubs — this is a young, single-user tool. Reference (`prd.md`, `issues.md`) and Explanation (`architecture.md`) are the most complete sections today.
+> Tutorials and how-to guides are still stubs — this is a young, single-user tool. Reference (`prd.md`) and Explanation (`architecture.md`) are the most complete sections today.
 
 ## Known Issues
 
-There's no external issue tracker yet — open items are tracked in [`docs/reference/issues.md`](./docs/reference/issues.md) until one is adopted. Notably still open:
-
-- Confirm the git host and push the repo remotely
+Work is tracked in the Dev0 project in Paca, one epic per phase of the Dev0 framework (`docs/scratch/2026-09-11-dev0-framework.md` §15). The original issue-by-issue build log lives in git history.
 
 ## Change Log
 

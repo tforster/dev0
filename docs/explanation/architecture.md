@@ -142,6 +142,5 @@ The repository is a normal git repository under the hood, but local development 
 ## 13. Further Reading
 
 - [`prd.md`](../../prd.md) — the design discussion and open items behind this architecture
-- [`issues.md`](../../issues.md) — the issue-by-issue build log
 
 [← Back to Explanation](./README.md)
