@@ -317,6 +317,10 @@ _Rejected:_ a POSIX `install.sh` (a second entry point to keep in step); both.
 
 _Rejected:_ a generator; prompting for a language; deferring to Phase 8.
 
+**D76 -- Harness-written content under a linked directory stays out of the repo.** _Added 2026-09-27._ Linking `~/.claude/skills` wholesale to `install/skills/` means anything Claude Code writes there lands in the repo: it syncs account-enabled Anthropic skills into `~/.claude/skills/synced/` (208 files, swept into an unpushed commit by jj's automatic snapshot before it was caught). Such paths are `.gitignore`d as they appear (`install/skills/synced/`); the files stay on disk so the harness keeps working. The repo is public, so a missed path publishes someone else's content -- check `jj st` for unexpected `install/` additions before any push.
+
+_Rejected, for now:_ linking each skill individually instead of the directory (a per-entry code path, against the one install model, D27); revisit if a second harness-written path appears.
+
 ## 9. Enforcement
 
 **D27.** Hooks live in a new `install/hooks/` symlink category -- same plain-symlink model as `skills`/`agents`/`rules`, no per-category code path. _Revised 2026-09-13:_ shell ergonomics (worktree functions) also live in the toolkit, as `install/shell/` (D55), not in the dotfiles repo -- see D65.
