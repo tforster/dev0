@@ -38,6 +38,14 @@ describe("loadConfig", () => {
     assert.strictEqual(config.harnesses.claude.rules, "/abs/rules");
   });
 
+  it("expands ~ in the optional bin path and leaves it undefined when absent", async () => {
+    await writeFile(configPath, JSON.stringify({ bin: "~/.local/bin/dev0", harnesses: {} }));
+    assert.strictEqual((await loadConfig(configPath)).bin, path.join(homedir(), ".local", "bin", "dev0"));
+
+    await writeFile(configPath, JSON.stringify({ harnesses: {} }));
+    assert.strictEqual((await loadConfig(configPath)).bin, undefined);
+  });
+
   it("rejects a missing file with a clear message", async () => {
     await assert.rejects(loadConfig(configPath), { message: `Config not found: ${configPath}` });
   });
@@ -59,6 +67,7 @@ describe("loadConfig", () => {
     { name: "harnesses as an array", value: { harnesses: [] }, pattern: /top-level "harnesses" object/ },
     { name: "a harness that is not an object", value: { harnesses: { claude: "x" } }, pattern: /harness "claude"/ },
     { name: "a non-string category path", value: { harnesses: { claude: { skills: 1 } } }, pattern: /"claude\.skills"/ },
+    { name: "a non-string bin path", value: { bin: 1, harnesses: {} }, pattern: /"bin" must be a path string/ },
   ];
 
   for (const { name, value, pattern } of invalidShapes) {

@@ -305,11 +305,11 @@ _Added 2026-09-13._ The repo that began as `~/.claude` sync becomes the toolkit 
 
 _Rejected:_ keeping the repo narrow (worktree functions named after tracker issues are Dev0 workflow, not general shell); merging dotfiles in; renaming `traits/` to `toolkit/` (a part named after the whole) or to `src/`; keeping the historical names.
 
-**D66 -- Zero runtime dependencies.** `yaml`, imported once to parse a five-line file, is dropped: `capabilities.yaml` becomes `dev0.json`, read with `JSON.parse`. The config already maps each category to its install target, so new targets (`~/.oh-my-zsh/custom/plugins/dev0`, `~/bin/dev0`, `~/.claude/dev0/`) are entries, not code paths. `npm install` is needed only for dev tooling, never to use the toolkit.
+**D66 -- Zero runtime dependencies.** `yaml`, imported once to parse a five-line file, is dropped: `capabilities.yaml` becomes `dev0.json`, read with `JSON.parse`. The config already maps each category to its install target, so new targets (`~/.oh-my-zsh/custom/plugins/dev0`, `~/.local/bin/dev0`, `~/.claude/dev0/`) are entries, not code paths. `npm install` is needed only for dev tooling, never to use the toolkit.
 
 _Rejected:_ keeping `yaml` as an accepted-dependency ADR (a Dev0 toolkit carrying a dependency it cannot justify is a bad first ADR); hand-rolling a YAML subset (the edge-case-heavy spec the `marked` example argues against re-implementing).
 
-**D67 -- No `install.sh`.** Bootstrap is `git clone`, then `node bin/dev0 install`, which also links `bin/dev0` into `~/bin`. `bin/dev0` checks `process.versions` itself, so every command gets the Node check, not just the first install. The trigger to add a script is a need Node cannot meet, such as installing Node itself -- not before (D4).
+**D67 -- No `install.sh`.** Bootstrap is `git clone`, then `node bin/dev0 install`, which also links `bin/dev0` into `~/.local/bin` (already on PATH in bash and zsh; `/usr/local/bin` needs `sudo` and is machine-wide). _Revised 2026-09-27:_ was `~/bin`, which zsh never had on PATH. `bin/dev0` checks `process.versions` itself, so every command gets the Node check, not just the first install. The trigger to add a script is a need Node cannot meet, such as installing Node itself -- not before (D4).
 
 _Rejected:_ a POSIX `install.sh` (a second entry point to keep in step); both.
 

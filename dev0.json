@@ -1,4 +1,5 @@
 {
+  "bin": "~/.local/bin/dev0",
   "harnesses": {
     "claude": {
       "skills": "~/.claude/skills",

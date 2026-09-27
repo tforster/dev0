@@ -1,10 +1,10 @@
 {
-  "name": "capabilities",
+  "name": "dev0",
   "version": "0.1.0",
   "description": "Single source of truth for workstation-global AI skills, agents, and instructions across coding harnesses.",
   "license": "MIT",
   "bin": {
-    "capabilities": "./bin/capabilities"
+    "dev0": "./bin/dev0"
   },
   "type": "module",
   "scripts": {
@@ -19,5 +19,8 @@
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

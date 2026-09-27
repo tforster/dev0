@@ -1,4 +1,4 @@
-// cli.test.js — end-to-end tests for bin/capabilities as an actual executable,
+// cli.test.js — end-to-end tests for bin/dev0 as an actual executable,
 // including invocation via a symlink (as it will be from ~/bin in real use).
 
 // System dependencies
@@ -25,8 +25,8 @@ async function makeFixture() {
   const root = await mkdtemp(path.join(tmpdir(), "capabilities-cli-"));
   await cp(path.join(repoRoot, "lib"), path.join(root, "lib"), { recursive: true });
   await mkdir(path.join(root, "bin"), { recursive: true });
-  await cp(path.join(repoRoot, "bin", "capabilities"), path.join(root, "bin", "capabilities"));
-  await chmod(path.join(root, "bin", "capabilities"), 0o755);
+  await cp(path.join(repoRoot, "bin", "dev0"), path.join(root, "bin", "dev0"));
+  await chmod(path.join(root, "bin", "dev0"), 0o755);
 
   await mkdir(path.join(root, "install", "skills"), { recursive: true });
   await mkdir(path.join(root, "install", "agents"), { recursive: true });
@@ -36,6 +36,7 @@ async function makeFixture() {
   await writeFile(
     path.join(root, "dev0.json"),
     JSON.stringify({
+      bin: path.join(home, "bin", "dev0"),
       harnesses: {
         testharness: {
           skills: path.join(home, ".testharness", "skills"),
@@ -46,10 +47,10 @@ async function makeFixture() {
     })
   );
 
-  return { root, cliPath: path.join(root, "bin", "capabilities"), home };
+  return { root, cliPath: path.join(root, "bin", "dev0"), home };
 }
 
-describe("bin/capabilities", () => {
+describe("bin/dev0", () => {
   it("installs a harness end-to-end when run directly", async () => {
     const { root, cliPath, home } = await makeFixture();
 
@@ -66,7 +67,7 @@ describe("bin/capabilities", () => {
 
   it("works when invoked via a symlink, as it will be from ~/bin", async () => {
     const { root, cliPath, home } = await makeFixture();
-    const symlinkedCli = path.join(root, "capabilities-symlink");
+    const symlinkedCli = path.join(root, "dev0-symlink");
     await symlink(cliPath, symlinkedCli);
 
     const { stdout } = await run(process.execPath, [symlinkedCli, "install", "testharness"]);
@@ -96,7 +97,7 @@ describe("bin/capabilities", () => {
   it("exits non-zero with a usage message when given no arguments", async () => {
     const { root, cliPath } = await makeFixture();
 
-    await assert.rejects(run(process.execPath, [cliPath]), /Usage: capabilities/);
+    await assert.rejects(run(process.execPath, [cliPath]), /Usage: dev0/);
 
     await rm(root, { recursive: true, force: true });
   });
@@ -121,6 +122,61 @@ describe("bin/capabilities", () => {
 
     const content = await readFile(path.join(root, "install", "skills", "my-skill", "SKILL.md"), "utf8");
     assert.match(content, /name: my-skill/);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("with no harness, installs every harness and links the CLI, which then runs through that link", async () => {
+    const { root, cliPath, home } = await makeFixture();
+
+    const { stdout } = await run(process.execPath, [cliPath, "install"], { env: { ...process.env, PATH: "/usr/bin" } });
+    assert.match(stdout, /Installed all harnesses/);
+    assert.match(stdout, /is not on PATH yet/);
+
+    const linkedCli = path.join(home, "bin", "dev0");
+    assert.ok((await lstat(linkedCli)).isSymbolicLink());
+    assert.ok((await lstat(path.join(home, ".testharness", "skills"))).isSymbolicLink());
+
+    const { stdout: statusOut } = await run(process.execPath, [linkedCli, "status"]);
+    assert.match(statusOut, /skills: correct/);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("stays quiet about PATH when the CLI's directory is already on it", async () => {
+    const { root, cliPath, home } = await makeFixture();
+
+    const env = { ...process.env, PATH: `${path.join(home, "bin")}${path.delimiter}/usr/bin` };
+    const { stdout } = await run(process.execPath, [cliPath, "install"], { env });
+    assert.doesNotMatch(stdout, /not on PATH/);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("uninstalling one harness keeps the CLI link; uninstalling everything removes it", async () => {
+    const { root, cliPath, home } = await makeFixture();
+    const linkedCli = path.join(home, "bin", "dev0");
+
+    await run(process.execPath, [cliPath, "install"]);
+    await run(process.execPath, [cliPath, "uninstall", "testharness"]);
+    assert.ok((await lstat(linkedCli)).isSymbolicLink());
+
+    const { stdout } = await run(process.execPath, [cliPath, "uninstall"]);
+    assert.match(stdout, /Uninstalled all harnesses/);
+    await assert.rejects(lstat(linkedCli), /ENOENT/);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("refuses to run on a Node older than the minimum, with a clear message", async () => {
+    const { root, cliPath, home } = await makeFixture();
+    const fakeOldNode = 'data:text/javascript,Object.defineProperty(process.versions,"node",{value:"18.0.0"})';
+
+    await assert.rejects(
+      run(process.execPath, ["--import", fakeOldNode, cliPath, "install"]),
+      /needs Node 24 or later; this is Node 18\.0\.0/
+    );
+    await assert.rejects(lstat(path.join(home, "bin", "dev0")), /ENOENT/);
 
     await rm(root, { recursive: true, force: true });
   });

@@ -10,7 +10,7 @@
 // System dependencies
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { mkdtemp, mkdir, rm, lstat, readlink } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, lstat, readlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -167,12 +167,60 @@ describe("install", () => {
       },
     };
 
-    await assert.rejects(install("testharness", { config, capabilitiesRoot }), /real directory/i);
+    await assert.rejects(install("testharness", { config, capabilitiesRoot }), /real file or directory/i);
 
     // The conflicting path is untouched, and the other category was never installed.
     const stats = await lstat(skillsTarget);
     assert.ok(!stats.isSymbolicLink(), "pre-existing real directory must be left alone");
     await assert.rejects(lstat(agentsTarget), /ENOENT/);
+
+    await rm(root, { recursive: true, force: true });
+  });
+});
+
+describe("install: all harnesses and the CLI link", () => {
+  it("installs every harness when no harness is named", async () => {
+    const { root, capabilitiesRoot, home } = await makeFixture();
+    const config = {
+      harnesses: {
+        first: { skills: path.join(home, ".first", "skills") },
+        second: { rules: path.join(home, ".second", "rules") },
+      },
+    };
+
+    await install(undefined, { config, capabilitiesRoot });
+
+    assert.ok((await lstat(path.join(home, ".first", "skills"))).isSymbolicLink());
+    assert.ok((await lstat(path.join(home, ".second", "rules"))).isSymbolicLink());
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("links bin/dev0 to config.bin, creating its directory", async () => {
+    const { root, capabilitiesRoot, home } = await makeFixture();
+    const binPath = path.join(home, "bin", "dev0");
+    const config = { bin: binPath, harnesses: { testharness: {} } };
+
+    await install("testharness", { config, capabilitiesRoot });
+
+    assert.ok((await lstat(binPath)).isSymbolicLink());
+    assert.strictEqual(path.resolve(path.dirname(binPath), await readlink(binPath)), path.join(capabilitiesRoot, "bin", "dev0"));
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("refuses and makes no changes when a real file sits at config.bin", async () => {
+    const { root, capabilitiesRoot, home } = await makeFixture();
+    const binPath = path.join(home, "bin", "dev0");
+    const skillsTarget = path.join(home, ".testharness", "skills");
+    await mkdir(path.dirname(binPath), { recursive: true });
+    await writeFile(binPath, "not ours");
+    const config = { bin: binPath, harnesses: { testharness: { skills: skillsTarget } } };
+
+    await assert.rejects(install("testharness", { config, capabilitiesRoot }), /the dev0 CLI.*real file or directory/);
+
+    assert.ok(!(await lstat(binPath)).isSymbolicLink(), "pre-existing file must be left alone");
+    await assert.rejects(lstat(skillsTarget), /ENOENT/);
 
     await rm(root, { recursive: true, force: true });
   });
@@ -238,6 +286,22 @@ describe("uninstall", () => {
     };
 
     await uninstall("testharness", { config, capabilitiesRoot });
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("keeps the CLI link when uninstalling one harness, removes it when uninstalling all", async () => {
+    const { root, capabilitiesRoot, home } = await makeFixture();
+    const binPath = path.join(home, "bin", "dev0");
+    const config = { bin: binPath, harnesses: { testharness: { skills: path.join(home, ".testharness", "skills") } } };
+
+    await install(undefined, { config, capabilitiesRoot });
+    await uninstall("testharness", { config, capabilitiesRoot });
+    assert.ok((await lstat(binPath)).isSymbolicLink());
+    await assert.rejects(lstat(path.join(home, ".testharness", "skills")), /ENOENT/);
+
+    await uninstall(undefined, { config, capabilitiesRoot });
+    await assert.rejects(lstat(binPath), /ENOENT/);
 
     await rm(root, { recursive: true, force: true });
   });
