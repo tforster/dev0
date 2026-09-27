@@ -7,7 +7,7 @@ How `capabilities` is put together, and why.
 - [1. Background](#1-background)
 - [2. Relationship to trAIt](#2-relationship-to-trait)
 - [3. Repository Layout](#3-repository-layout)
-- [4. `capabilities.yaml`](#4-capabilitiesyaml)
+- [4. `dev0.json`](#4-dev0json)
 - [5. CLI and Modules](#5-cli-and-modules)
 - [6. Install Model: Plain Symlink, Everywhere](#6-install-model-plain-symlink-everywhere)
 - [7. Rules and Claude's `paths:` Scoping](#7-rules-and-claudes-paths-scoping)
@@ -31,7 +31,7 @@ Skill, agent, and rule files for AI coding harnesses tend to scatter across `~/.
 ```text
 capabilities/
 ├── README.md
-├── capabilities.yaml        # harness registry — see §4
+├── dev0.json                # harness registry — see §4
 ├── bin/
 │   └── capabilities         # CLI entry point, symlinked into ~/bin
 ├── lib/                     # CLI implementation, one module per concern
@@ -47,16 +47,20 @@ capabilities/
 
 `skills/`, `agents/`, `rules/` live under one `install/` parent, kept visually and structurally distinct from `docs/`, `tests/`, `lib/`, and the rest of the tooling.
 
-## 4. `capabilities.yaml`
+## 4. `dev0.json`
 
 A harness registry, nested under a top-level `harnesses` key so future sibling keys don't force a breaking restructure. Only `claude:` is populated:
 
-```yaml
-harnesses:
-  claude:
-    skills: ~/.claude/skills
-    agents: ~/.claude/agents
-    rules: ~/.claude/rules
+```json
+{
+  "harnesses": {
+    "claude": {
+      "skills": "~/.claude/skills",
+      "agents": "~/.claude/agents",
+      "rules": "~/.claude/rules"
+    }
+  }
+}
 ```
 
 A category missing under a harness means "not applicable," not an error.
@@ -73,7 +77,7 @@ A category missing under a harness means "not applicable," not an error.
 | `capabilities sync`                | `lib/sync.js` (via `lib/jj.js`) |
 | `capabilities new skill <name>`    | `lib/new-skill.js`              |
 
-`lib/config.js` parses `capabilities.yaml` and expands leading `~` to the home directory; every other module takes the parsed config as a plain object.
+`lib/config.js` reads `dev0.json` with `JSON.parse`, rejects a missing file, malformed JSON or a wrong shape with an error naming the file, and expands leading `~` to the home directory; every other module takes the parsed config as a plain object.
 
 ## 6. Install Model: Plain Symlink, Everywhere
 
@@ -121,7 +125,7 @@ Filesystem-backed modules are tested against real temporary directories rather t
 
 ## 12. Dependencies and Version Control
 
-`capabilities.yaml` is parsed with the [`yaml`](https://www.npmjs.com/package/yaml) npm package rather than a hand-rolled parser — the one deliberate exception to an otherwise zero-dependency codebase.
+There are no runtime dependencies. The registry is JSON so it can be read with `JSON.parse` rather than a parser package or a hand-rolled YAML subset (D66); new install targets are config entries, not code paths.
 
 The repository is a normal git repository under the hood, but local development uses [Jujutsu](https://jj-vcs.github.io/jj/) (`jj`) on a colocated git backend. `capabilities sync` (§10) is written against jj's own vocabulary (`describe`, bookmarks) rather than git's.
 

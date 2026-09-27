@@ -26,7 +26,7 @@ const harnessName = arg1;
  */
 async function main() {
   if (command === "status") {
-    const config = await loadConfig(path.join(repoRoot, "capabilities.yaml"));
+    const config = await loadConfig(path.join(repoRoot, "dev0.json"));
     const report = await status({ config, capabilitiesRoot: repoRoot });
     printStatus(report);
     return;
@@ -40,7 +40,7 @@ async function main() {
 
   if (command === "new" && arg1 === "skill") {
     await newSkill(arg2, { capabilitiesRoot: repoRoot });
-    console.log(`Created traits/skills/${arg2}/SKILL.md.`);
+    console.log(`Created install/skills/${arg2}/SKILL.md.`);
     return;
   }
 
@@ -52,7 +52,7 @@ async function main() {
     return;
   }
 
-  const config = await loadConfig(path.join(repoRoot, "capabilities.yaml"));
+  const config = await loadConfig(path.join(repoRoot, "dev0.json"));
 
   if (command === "install") {
     await install(harnessName, { config, capabilitiesRoot: repoRoot });

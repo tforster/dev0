@@ -1,8 +1,8 @@
-// config.test.js — behavioural tests for capabilities.yaml loading and ~ expansion
+// config.test.js — behavioural tests for dev0.json loading, validation and ~ expansion
 
 // System dependencies
 import { strict as assert } from "node:assert";
-import { describe, it } from "node:test";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir, homedir } from "node:os";
 import path from "node:path";
@@ -11,16 +11,60 @@ import path from "node:path";
 import { loadConfig } from "../lib/config.js";
 
 describe("loadConfig", () => {
-  it("parses harnesses and expands ~ to the home directory", async () => {
-    const root = await mkdtemp(path.join(tmpdir(), "capabilities-config-"));
-    const yamlPath = path.join(root, "capabilities.yaml");
-    await writeFile(yamlPath, "harnesses:\n  claude:\n    skills: ~/.claude/skills\n    agents: ~/.claude/agents\n");
+  /** @type {string} */
+  let root;
+  /** @type {string} */
+  let configPath;
 
-    const config = await loadConfig(yamlPath);
+  beforeEach(async () => {
+    root = await mkdtemp(path.join(tmpdir(), "capabilities-config-"));
+    configPath = path.join(root, "dev0.json");
+  });
+
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("parses harnesses and expands ~ to the home directory", async () => {
+    await writeFile(
+      configPath,
+      JSON.stringify({ harnesses: { claude: { skills: "~/.claude/skills", agents: "~/.claude/agents", rules: "/abs/rules" } } })
+    );
+
+    const config = await loadConfig(configPath);
 
     assert.strictEqual(config.harnesses.claude.skills, path.join(homedir(), ".claude", "skills"));
     assert.strictEqual(config.harnesses.claude.agents, path.join(homedir(), ".claude", "agents"));
-
-    await rm(root, { recursive: true, force: true });
+    assert.strictEqual(config.harnesses.claude.rules, "/abs/rules");
   });
+
+  it("rejects a missing file with a clear message", async () => {
+    await assert.rejects(loadConfig(configPath), { message: `Config not found: ${configPath}` });
+  });
+
+  it("rejects malformed JSON, naming the file", async () => {
+    await writeFile(configPath, '{ "harnesses": { ');
+
+    await assert.rejects(loadConfig(configPath), (error) => {
+      assert.ok(error instanceof Error);
+      assert.match(error.message, /^Malformed JSON in /);
+      assert.ok(error.message.includes(configPath));
+      return true;
+    });
+  });
+
+  const invalidShapes = [
+    { name: "a top-level array", value: [], pattern: /top-level "harnesses" object/ },
+    { name: "no harnesses key", value: {}, pattern: /top-level "harnesses" object/ },
+    { name: "harnesses as an array", value: { harnesses: [] }, pattern: /top-level "harnesses" object/ },
+    { name: "a harness that is not an object", value: { harnesses: { claude: "x" } }, pattern: /harness "claude"/ },
+    { name: "a non-string category path", value: { harnesses: { claude: { skills: 1 } } }, pattern: /"claude\.skills"/ },
+  ];
+
+  for (const { name, value, pattern } of invalidShapes) {
+    it(`rejects ${name}`, async () => {
+      await writeFile(configPath, JSON.stringify(value));
+      await assert.rejects(loadConfig(configPath), pattern);
+    });
+  }
 });

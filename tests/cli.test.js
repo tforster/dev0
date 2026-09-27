@@ -15,8 +15,8 @@ const run = promisify(execFile);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /**
- * Builds a standalone copy of the CLI (bin + lib, symlinked node_modules)
- * plus a fake capabilities.yaml and install/{skills,agents,rules}, isolated
+ * Builds a standalone copy of the CLI (bin + lib, no node_modules)
+ * plus a fake dev0.json and install/{skills,agents,rules}, isolated
  * from the real repo.
  *
  * @returns {Promise<{root: string, cliPath: string, home: string}>} Fixture paths.
@@ -27,7 +27,6 @@ async function makeFixture() {
   await mkdir(path.join(root, "bin"), { recursive: true });
   await cp(path.join(repoRoot, "bin", "capabilities"), path.join(root, "bin", "capabilities"));
   await chmod(path.join(root, "bin", "capabilities"), 0o755);
-  await symlink(path.join(repoRoot, "node_modules"), path.join(root, "node_modules"), "dir");
 
   await mkdir(path.join(root, "install", "skills"), { recursive: true });
   await mkdir(path.join(root, "install", "agents"), { recursive: true });
@@ -35,15 +34,16 @@ async function makeFixture() {
 
   const home = path.join(root, "home");
   await writeFile(
-    path.join(root, "capabilities.yaml"),
-    [
-      "harnesses:",
-      "  testharness:",
-      `    skills: ${path.join(home, ".testharness", "skills")}`,
-      `    agents: ${path.join(home, ".testharness", "agents")}`,
-      `    rules: ${path.join(home, ".testharness", "rules")}`,
-      "",
-    ].join("\n")
+    path.join(root, "dev0.json"),
+    JSON.stringify({
+      harnesses: {
+        testharness: {
+          skills: path.join(home, ".testharness", "skills"),
+          agents: path.join(home, ".testharness", "agents"),
+          rules: path.join(home, ".testharness", "rules"),
+        },
+      },
+    })
   );
 
   return { root, cliPath: path.join(root, "bin", "capabilities"), home };
@@ -117,7 +117,7 @@ describe("bin/capabilities", () => {
     const { root, cliPath } = await makeFixture();
 
     const { stdout } = await run(process.execPath, [cliPath, "new", "skill", "my-skill"]);
-    assert.match(stdout, /Created traits\/skills\/my-skill\/SKILL\.md/);
+    assert.match(stdout, /Created install\/skills\/my-skill\/SKILL\.md/);
 
     const content = await readFile(path.join(root, "install", "skills", "my-skill", "SKILL.md"), "utf8");
     assert.match(content, /name: my-skill/);

@@ -1,0 +1,9 @@
+{
+  "harnesses": {
+    "claude": {
+      "skills": "~/.claude/skills",
+      "agents": "~/.claude/agents",
+      "rules": "~/.claude/rules"
+    }
+  }
+}

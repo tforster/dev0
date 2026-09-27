@@ -14,9 +14,6 @@
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit -p jsconfig.json"
   },
-  "dependencies": {
-    "yaml": "^2.5.0"
-  },
   "devDependencies": {
     "@types/node": "^26.1.1",
     "oxfmt": "^0.58.0",
