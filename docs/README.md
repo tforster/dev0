@@ -1,6 +1,6 @@
-# capabilities Documentation <!-- omit in toc -->
+# dev0 Documentation <!-- omit in toc -->
 
-Documentation for `capabilities`, organised using the [Diátaxis framework](https://diataxis.fr/).
+Documentation for `dev0`, organised using the [Diátaxis framework](https://diataxis.fr/).
 
 ## Table of Contents <!-- omit in toc -->
 

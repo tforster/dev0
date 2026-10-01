@@ -1,0 +1,10 @@
+{
+  "bin": "~/.local/bin/dev0",
+  "harnesses": {
+    "claude": {
+      "skills": "~/.claude/skills",
+      "agents": "~/.claude/agents",
+      "rules": "~/.claude/rules"
+    }
+  }
+}

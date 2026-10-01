@@ -9,6 +9,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["bin/**/*", "lib/**/*", "test/**/*"],
-  "exclude": ["node_modules", "traits"]
+  "include": ["bin/**/*", "lib/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "install"]
 }

@@ -1,13 +1,13 @@
 # Architecture <!-- omit in toc -->
 
-How `capabilities` is put together, and why.
+How `dev0`, the Dev0 toolkit, is put together, and why.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [1. Background](#1-background)
-- [2. Relationship to trAIt](#2-relationship-to-trait)
+- [2. Scope, and Where It Came From](#2-scope-and-where-it-came-from)
 - [3. Repository Layout](#3-repository-layout)
-- [4. `capabilities.yaml`](#4-capabilitiesyaml)
+- [4. `dev0.json`](#4-dev0json)
 - [5. CLI and Modules](#5-cli-and-modules)
 - [6. Install Model: Plain Symlink, Everywhere](#6-install-model-plain-symlink-everywhere)
 - [7. Rules and Claude's `paths:` Scoping](#7-rules-and-claudes-paths-scoping)
@@ -20,22 +20,29 @@ How `capabilities` is put together, and why.
 
 ## 1. Background
 
-Skill, agent, and rule files for AI coding harnesses tend to scatter across `~/.claude/`, `~/.copilot/`, etc., with no single source of truth and no way to keep them consistent across machines. `capabilities` is one workstation-global repository for skills, agents, and rules, synced across machines via git.
+Skill, agent, and rule files for AI coding harnesses tend to scatter across `~/.claude/`, `~/.copilot/`, etc., with no single source of truth and no way to keep them consistent across machines. `dev0` is one workstation-global repository for everything the Dev0 workflow installs into a harness, synced across machines via git.
 
-## 2. Relationship to trAIt
+## 2. Scope, and Where It Came From
 
-[trAIt](https://github.com/tforster/trait) is a separate, more ambitious proposal — a distributed-wiki model for AI agent files, multi-author, multi-harness. `capabilities` is not that. It is explicitly **scaffolding**: a small, single-author tool that keeps skills, agents, and rules in sync across three machines, for a single harness (Claude). It's meant to be retired once trAIt has a working implementation worth migrating to — every design choice below favours "simple and good enough for one person" over generality.
+`dev0` is the toolkit the Dev0 workflow is delivered through. The scope test for anything added here: does it exist only to serve the Dev0 workflow?
+
+- **In:** the philosophy, agentic traits (skills, agents, rules, hooks, ADRs), worktree shell functions, project templates
+- **Out, to the dotfiles repo:** general shell and machine setup -- prompt, aliases, PATH, editor
+
+It is still a single-author, single-harness (Claude) tool, and every design choice below favours "simple and good enough for one person" over generality.
+
+The repo began as `capabilities`, explicit scaffolding for [trAIt](https://github.com/tforster/trait) -- a separate, more ambitious proposal for a distributed-wiki model of AI agent files, multi-author and multi-harness. It was renamed `dev0` when its scope grew from syncing `~/.claude` to delivering Dev0. `install/` is the one name kept from trAIt's vocabulary.
 
 ## 3. Repository Layout
 
 ```text
-capabilities/
+dev0/
 ├── README.md
-├── capabilities.yaml        # harness registry — see §4
+├── dev0.json                # harness registry — see §4
 ├── bin/
-│   └── capabilities         # CLI entry point, symlinked into ~/bin
+│   └── dev0                 # CLI entry point, symlinked into ~/.local/bin
 ├── lib/                     # CLI implementation, one module per concern
-├── traits/                  # nod to trAIt (§2) — everything installed into a harness
+├── install/                 # everything installed into a harness (§2)
 │   ├── skills/
 │   │   └── <skill-name>/SKILL.md
 │   ├── agents/
@@ -45,55 +52,62 @@ capabilities/
 └── prd.md
 ```
 
-`skills/`, `agents/`, `rules/` live under one `traits/` parent, kept visually and structurally distinct from `docs/`, `test/`, `lib/`, and the rest of the tooling.
+`skills/`, `agents/`, `rules/` live under one `install/` parent, kept visually and structurally distinct from `docs/`, `tests/`, `lib/`, and the rest of the tooling.
 
-## 4. `capabilities.yaml`
+## 4. `dev0.json`
 
-A harness registry, nested under a top-level `harnesses` key so future sibling keys don't force a breaking restructure. Only `claude:` is populated:
+The install registry: where the CLI is linked (`bin`), and a `harnesses` map of harness to category to target path. Only `claude` is populated:
 
-```yaml
-harnesses:
-  claude:
-    skills: ~/.claude/skills
-    agents: ~/.claude/agents
-    rules: ~/.claude/rules
+```json
+{
+  "bin": "~/.local/bin/dev0",
+  "harnesses": {
+    "claude": {
+      "skills": "~/.claude/skills",
+      "agents": "~/.claude/agents",
+      "rules": "~/.claude/rules"
+    }
+  }
+}
 ```
 
-A category missing under a harness means "not applicable," not an error.
+A category missing under a harness means "not applicable," not an error. A new install target is a config entry, not a code path.
 
 ## 5. CLI and Modules
 
-`bin/capabilities` is a single Node.js ESM entry point, symlinked into `~/bin`. It resolves its own real path via `import.meta.url`, so it works whether invoked directly or through a symlink. Each subcommand is a thin wrapper over one `lib/` module:
+`bin/dev0` is a single Node.js ESM entry point. `dev0 install` links it to the path in `dev0.json`'s `bin` key (`~/.local/bin/dev0`), so bootstrapping a machine is `git clone`, then `node bin/dev0 install` -- there is no `install.sh`. It resolves its own real path via `import.meta.url`, so it works whether invoked directly or through that symlink, and it exits with a clear message on Node older than 24. Each subcommand is a thin wrapper over one `lib/` module:
 
-| Command                            | Module                          |
-| ---------------------------------- | ------------------------------- |
-| `capabilities install <harness>`   | `lib/install.js`                |
-| `capabilities uninstall <harness>` | `lib/install.js`                |
-| `capabilities status`              | `lib/status.js`                 |
-| `capabilities sync`                | `lib/sync.js` (via `lib/jj.js`) |
-| `capabilities new skill <name>`    | `lib/new-skill.js`              |
+| Command                    | Module                          |
+| -------------------------- | ------------------------------- |
+| `dev0 install [harness]`   | `lib/install.js`                |
+| `dev0 uninstall [harness]` | `lib/install.js`                |
+| `dev0 status`              | `lib/status.js`                 |
+| `dev0 sync`                | `lib/sync.js` (via `lib/jj.js`) |
+| `dev0 new skill <name>`    | `lib/new-skill.js`              |
 
-`lib/config.js` parses `capabilities.yaml` and expands leading `~` to the home directory; every other module takes the parsed config as a plain object.
+Without a harness, `install` and `uninstall` act on every harness in `dev0.json`. Uninstalling one harness keeps the CLI link; a full `uninstall` removes it.
+
+`lib/config.js` reads `dev0.json` with `JSON.parse`, rejects a missing file, malformed JSON or a wrong shape with an error naming the file, and expands leading `~` to the home directory; every other module takes the parsed config as a plain object.
 
 ## 6. Install Model: Plain Symlink, Everywhere
 
-`skills/`, `agents/`, and `rules/` all use the same model: `lib/install.js` symlinks each whole directory into the harness's configured path. `capabilities install claude` produces `~/.claude/skills`, `~/.claude/agents`, `~/.claude/rules` — each a directory symlink into `traits/`. One rule, three categories, no exceptions, no per-category code.
+`skills/`, `agents/`, and `rules/` all use the same model: `lib/install.js` symlinks each whole directory into the harness's configured path. `dev0 install claude` produces `~/.claude/skills`, `~/.claude/agents`, `~/.claude/rules` — each a directory symlink into `install/`. One rule, three categories, no exceptions, no per-category code.
 
-Agent files are plain Claude-native frontmatter (`name`, `description`, optionally `tools`/`model`) — no per-harness variation, since Claude is the only harness `capabilities` installs for (§2).
+Agent files are plain Claude-native frontmatter (`name`, `description`, optionally `tools`/`model`) — no per-harness variation, since Claude is the only harness `dev0` installs for (§2).
 
 ## 7. Rules and Claude's `paths:` Scoping
 
-`traits/rules/` is flat — every file in it is an independent topic file, symlinked wholesale to `~/.claude/rules/`. Claude scopes a rule file to specific paths via `paths:` frontmatter; a rule file without it loads unconditionally on every session. `capabilities` doesn't manage or validate that frontmatter — it's just markdown content being symlinked, same as everything else in `traits/`.
+`install/rules/` is flat — every file in it is an independent topic file, symlinked wholesale to `~/.claude/rules/`. Claude scopes a rule file to specific paths via `paths:` frontmatter; a rule file without it loads unconditionally on every session. `dev0` doesn't manage or validate that frontmatter — it's just markdown content being symlinked, same as everything else in `install/`.
 
 ## 8. Atomic Install
 
-`install` refuses, without making any changes, if a harness's target path already exists as a real (non-symlink) directory. To guarantee "no changes on refusal" holds even when a harness configures multiple categories, `install` runs in two phases: it first validates every applicable category (already-correct symlink, conflicting real directory, or fresh path to create), builds a plan, and only then applies it. A conflict on the second category can't leave the first partially installed, because nothing is written until every category has been validated.
+`install` refuses, without making any changes, if any target path already exists as a real (non-symlink) file or directory. To guarantee "no changes on refusal" holds across every link it manages -- each applicable category of each selected harness, plus the CLI link -- `install` runs in two phases: it first validates every link (already-correct symlink, conflicting real file or directory, or fresh path to create), builds a plan, and only then applies it. A conflict on the second link can't leave the first partially installed, because nothing is written until every link has been validated.
 
-Re-running `install` on an already-correct symlink is a no-op by the same mechanism — if the existing symlink already resolves to the expected source, that category is skipped in the plan.
+Re-running `install` on an already-correct symlink is a no-op by the same mechanism — if the existing symlink already resolves to the expected source, that link is skipped in the plan.
 
 ## 9. Status Model
 
-`capabilities status` reports one of four states per harness, per category:
+`dev0 status` reports one of four states per harness, per category:
 
 | State            | Meaning                                                                                        |
 | ---------------- | ---------------------------------------------------------------------------------------------- |
@@ -106,7 +120,7 @@ The same symlink-resolution check applies uniformly to `skills`, `agents`, and `
 
 ## 10. `sync`
 
-`capabilities sync` wraps `jj git fetch` → integrate → `jj describe` → `jj git push` into one command. `lib/sync.js` takes its `jj` runner as an injected parameter rather than shelling out directly, so the sequencing logic is testable without a real git remote. `lib/jj.js` is the one concrete implementation of that runner, and the only module that shells out via `node:child_process` for version control.
+`dev0 sync` wraps `jj git fetch` → integrate → `jj describe` → `jj git push` into one command. `lib/sync.js` takes its `jj` runner as an injected parameter rather than shelling out directly, so the sequencing logic is testable without a real git remote. `lib/jj.js` is the one concrete implementation of that runner, and the only module that shells out via `node:child_process` for version control.
 
 Two behaviours worth knowing:
 
@@ -115,19 +129,18 @@ Two behaviours worth knowing:
 
 ## 11. Testing Strategy
 
-Filesystem-backed modules are tested against real temporary directories rather than a mocked `fs` — the behaviour under test _is_ filesystem symlink manipulation, so faking `fs` would only test a hand-written stub. `bin/capabilities` is tested by spawning it as an actual child process, including through a symlink.
+Filesystem-backed modules are tested against real temporary directories rather than a mocked `fs` — the behaviour under test _is_ filesystem symlink manipulation, so faking `fs` would only test a hand-written stub. `bin/dev0` is tested by spawning it as an actual child process, including through a symlink.
 
 `sync` is the exception: its correctness is entirely about _sequencing_ jj calls and reacting to their output, and a real git remote is exactly the kind of external boundary worth mocking.
 
 ## 12. Dependencies and Version Control
 
-`capabilities.yaml` is parsed with the [`yaml`](https://www.npmjs.com/package/yaml) npm package rather than a hand-rolled parser — the one deliberate exception to an otherwise zero-dependency codebase.
+There are no runtime dependencies. The registry is JSON so it can be read with `JSON.parse` rather than a parser package or a hand-rolled YAML subset (D66); new install targets are config entries, not code paths.
 
-The repository is a normal git repository under the hood, but local development uses [Jujutsu](https://jj-vcs.github.io/jj/) (`jj`) on a colocated git backend. `capabilities sync` (§10) is written against jj's own vocabulary (`describe`, bookmarks) rather than git's.
+The repository is a normal git repository under the hood, but local development uses [Jujutsu](https://jj-vcs.github.io/jj/) (`jj`) on a colocated git backend. `dev0 sync` (§10) is written against jj's own vocabulary (`describe`, bookmarks) rather than git's.
 
 ## 13. Further Reading
 
 - [`prd.md`](../../prd.md) — the design discussion and open items behind this architecture
-- [`issues.md`](../../issues.md) — the issue-by-issue build log
 
 [← Back to Explanation](./README.md)

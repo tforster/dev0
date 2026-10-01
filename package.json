@@ -1,26 +1,26 @@
 {
-  "name": "capabilities",
+  "name": "dev0",
   "version": "0.1.0",
-  "description": "Single source of truth for workstation-global AI skills, agents, and instructions across coding harnesses.",
+  "description": "The Dev0 toolkit: skills, agents, rules and tooling that deliver the Dev0 workflow, synced across machines.",
   "license": "MIT",
   "bin": {
-    "capabilities": "./bin/capabilities"
+    "dev0": "./bin/dev0"
   },
   "type": "module",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
+    "test": "node --test \"tests/**/*.test.js\"",
     "lint": "oxlint",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "typecheck": "tsc --noEmit -p jsconfig.json"
-  },
-  "dependencies": {
-    "yaml": "^2.5.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
