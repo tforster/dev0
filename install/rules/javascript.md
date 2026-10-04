@@ -5,8 +5,7 @@ applyTo: "**/*.js"
 # JavaScript Standards <!-- omit in toc -->
 
 > [!NOTE]
-> **Formatting rules** (indentation, quotes, line width, trailing commas, naming conventions) are
-> defined in `rules/code-style.md`. Do not duplicate them here.
+> **Naming, casing and where formatting comes from** are in `rules/code-style.md`. Do not duplicate them here.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -180,6 +179,5 @@ Keep each section focused and named for what it does, not how it does it.
 
 ## 10. Miscellaneous
 
-- Run `npm run lint` after every edit — see `rules/code-style.md` for the full lint rule
-- The `.oxfmtrc.json` in the repo root defines all formatting; VS Code formats on save
+- Run `npm run lint` after every edit
 - Do not mix CommonJS (`require`) and ESM (`import`) in the same file or package

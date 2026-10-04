@@ -1,33 +1,19 @@
----
-applyTo: "**"
----
+# Code Style <!-- omit in toc -->
 
-# Code Style Standards <!-- omit in toc -->
+Naming and casing for every language. Formatting follows the project's formatter configuration, else its `.editorconfig`, else the surrounding file.
 
-All files in this project follow these formatting rules, enforced via oxlint and oxfmt.
+## 1. Spelling
 
-## 1. Formatting
+Canadian English in identifiers, comments and documentation: `colour`, `behaviour`, `initialise`, `catalogue`. US spelling only where a language, standard API or reserved word dictates it: CSS `color`, `Intl.DateTimeFormat`.
 
-- **Indentation**: 2 spaces — no tabs
-- **Line width**: 132 characters maximum
-- **Quotes**: Double quotes for strings
-- **Trailing commas**: ES5 style (objects and arrays)
-- **Arrow parens**: Always include parentheses
-- **Line endings**: LF (Unix)
+## 2. Names
 
-## 2. Language
+- **camelCase** for variables, functions and object properties; **PascalCase** for classes. Never `snake_case`, unless the language enforces it.
+- **Environment variables** are PascalCase (`DatabaseUrl`), not `UPPER_SNAKE_CASE`.
+- **Unabbreviated and descriptive**: `extensionToMime`, `outputContent` -- never `extMap`, `outCont`.
+- **Booleans read as conditions**: `isEndOfArchive`, `atSegmentStart`, `hasChildren`.
 
-- Modern JavaScript (ESNext) — **not TypeScript**
-- ES Modules (`import`/`export`) — no CommonJS `require`
-- ES6 classes with `#` prefix for private members
-- JSDoc required on all functions, classes, and methods
+## 3. Files
 
-## 3. Naming Conventions
-
-- **Variables and instances**: camelCase
-- **Classes**: PascalCase — filename must match class name (e.g., `MyClass.js` exports `MyClass`)
-- **Files**: kebab-case for non-class files; PascalCase for class files
-
-## 4. After Every Edit
-
-Run `npm run lint` and fix all reported errors before considering the task complete. VS Code formats on save — trigger a save to auto-format.
+- **kebab-case** for files that do not export a class: `parse-headings.js`, `how-to-deploy.md`.
+- **PascalCase** for a file exporting a class, matching the class name: `TokenManager.js` exports `TokenManager`.
