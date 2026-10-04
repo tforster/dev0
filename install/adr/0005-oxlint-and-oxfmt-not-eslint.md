@@ -10,7 +10,7 @@ JavaScript is linted with `oxlint` and formatted with `oxfmt`. ESLint is rejecte
 
 ## 2. Consequences
 
-- `html`, `css`, `json`, `sql` and `md` are linted separately, and are added once the JavaScript pattern is proven.
+- `html`, `css`, `json`, `sql` and `md` will be linted separately once the JavaScript pattern is proven.
 - PHP is the exception, with its own tooling, decided where PHP is in scope.
 
 [← Back to ADR index](./README.md)
