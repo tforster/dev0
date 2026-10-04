@@ -39,6 +39,7 @@ Use kebab-case for all Markdown file names: `database-setup.md`, `how-to-deploy.
 - Blank lines around headings, fenced code blocks, and lists
 - Do not use `---` as a section divider; use headings
 - Do not hard-wrap prose. Wrapping is the renderer's job, not the file's
+- Diagrams are Mermaid, in the Markdown. C4 for architecture; sequence, flow or state diagrams where they convey the information better
 
 These correspond to markdownlint MD022 (headings surrounded by blank lines), MD025 (one top-level heading), MD031 (fences surrounded by blank lines), MD032 (lists surrounded by blank lines), and MD040 (fences have a language).
 
