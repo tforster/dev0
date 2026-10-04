@@ -1,6 +1,6 @@
 # dev0 <!-- omit in toc -->
 
-_The Dev0 toolkit: the skills, agents, rules and tooling that deliver the Dev0 workflow, kept in sync across machines._
+_The [Dev0](./DEV0.md) toolkit: the skills, agents, rules and tooling that deliver the Dev0 workflow, kept in sync across machines._
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -16,7 +16,7 @@ _The Dev0 toolkit: the skills, agents, rules and tooling that deliver the Dev0 w
 
 `dev0` is the toolkit the Dev0 workflow is delivered through: a personal, single-harness (Claude-only) repo that keeps `install/{skills,agents,rules}` in sync across machines and symlinks them into `~/.claude/`.
 
-The scope test for anything added here: does it exist only to serve the Dev0 workflow? **In:** the philosophy, agentic traits (skills, agents, rules, hooks, ADRs), worktree shell functions, project templates. **Out, to the dotfiles repo:** general shell and machine setup.
+The scope test for anything added here: does it exist only to serve the Dev0 workflow? **In:** the philosophy ([`DEV0.md`](./DEV0.md)), agentic traits (skills, agents, rules, hooks, ADRs), worktree shell functions, project templates. **Out, to the dotfiles repo:** general shell and machine setup.
 
 **Key points:**
 
