@@ -45,7 +45,11 @@ describe("cross-project ADRs", () => {
       // A framework decision number (D21) or a link to a sibling ADR means the reader needs
       // another document to follow the argument. Only the back-link to the index is allowed.
       assert.doesNotMatch(content, /\bD\d+\b/, `${name} cites a framework decision number`);
-      const links = [...content.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1]);
+      const links = [
+        ...content.matchAll(/\]\(([^)]+)\)/g),
+        ...content.matchAll(/^\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/gm),
+        ...content.matchAll(/<([a-z][a-z0-9+.-]*:[^>]+)>/gi),
+      ].map((match) => match[1] ?? match[2]);
       assert.deepStrictEqual(
         links.filter((link) => link !== "./README.md"),
         [],
