@@ -41,7 +41,7 @@ describe("cross-project ADRs", () => {
 
   it("DEV0-20: every ADR stands alone and stays under ~200 lines", async () => {
     for (const { name, content } of await readAdrs()) {
-      assert.ok(content.split("\n").length <= 200, `${name} is over 200 lines`);
+      assert.ok(content.replace(/\n$/, "").split("\n").length <= 200, `${name} is over 200 lines`);
       // A framework decision number (D21) or a link to a sibling ADR means the reader needs
       // another document to follow the argument. Only the back-link to the index is allowed.
       assert.doesNotMatch(content, /\bD\d+\b/, `${name} cites a framework decision number`);
