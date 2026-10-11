@@ -1,5 +1,5 @@
 .env
-node_modules/
 .claude/settings.local.json
-__pycache__/
+# Claude app sync target while ~/.claude/skills still points here; leaves with the Agents0 reinstall
 install/skills/synced/
+__pycache__/
