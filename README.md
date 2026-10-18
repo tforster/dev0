@@ -1,91 +1,27 @@
-# dev0 <!-- omit in toc -->
+# Dev0 <!-- omit in toc -->
 
-_The [Dev0](./DEV0.md) toolkit: the skills, agents, rules and tooling that deliver the Dev0 workflow, kept in sync across machines._
+_Simplicity, defined._
 
-## Table of Contents <!-- omit in toc -->
+Everyone claims simplicity, and most of what the industry sells as simple is merely easy: familiar, one command away, what everyone else uses. Dev0 is my name for how I have built software over 40 years, and it pins the word down. **Simple means fewer parts, kept separate, each legible.** Every part is something that can break, be attacked, go out of date, need testing and be shipped to a user. Separation can add parts and still simplify, because it removes the tangles between them. Legibility stops "fewer" turning into code golf.
 
-- [About](#about)
-- [Quick Start](#quick-start)
-- [Documentation](#documentation)
-- [Known Issues](#known-issues)
-- [Change Log](#change-log)
-- [Contributing](#contributing)
-- [License](#license)
+The method is **zero-based**. Like zero-based budgeting, you do not start from last year's stack plus a bit. You start from nothing -- no scaffold, no framework, no dependencies -- and every addition, whether a dependency, a tool, a layer or a line of configuration, earns its place against the whole system. The question flips from "why not add this?" to "does this earn the right to exist?" An addition earns its place by passing **all six tests**, and a strong pass never buys off a failure:
 
-## About
+- **Less** -- does it reduce what can go wrong, or add to it? You own its whole transitive tree, its configuration and its infrastructure.
+- **Separate** -- does each part do one thing, in its own place, behind a clear interface?
+- **Legibility** -- can you predict what it does by reading it, without running it?
+- **Native** -- does what you already run on do this? Use the platform before adding to it.
+- **Beneficiary** -- who does it serve: the user, or only the developer?
+- **Control** -- do you control where it runs? Use the newest features where you own the runtime, and be conservative where you do not.
 
-`dev0` is the toolkit the Dev0 workflow is delivered through: a personal, single-harness (Claude-only) repo that keeps `install/{skills,agents,rules}` in sync across machines and symlinks them into `~/.claude/`.
+When developer convenience and user benefit conflict, **the user wins**. Tools may check what you write as much as they like -- a type checker, linter or formatter ships nothing -- but they may transform it only on the way out, as a minifier does.
 
-The scope test for anything added here: does it exist only to serve the Dev0 workflow? **In:** the philosophy ([`DEV0.md`](./DEV0.md)), agentic traits (skills, agents, rules, hooks, ADRs), worktree shell functions, project templates. **Out, to the dotfiles repo:** general shell and machine setup.
+Any rule can be broken, but only as an **exception**: made by someone who can see the whole system, and written down with its cost, its reason and the alternatives it rejected. A codebase records what was built; only a written rejection records what was ruled out.
 
-**Key points:**
+That someone is the **architect**: whoever owns the design, and the responsibility for it, for this piece of work. The architect draws the boundaries, refuses dependencies and decides what is not being built -- once, upfront, in writing. **Doers**, whether people or AI coding agents, build against those decisions faithfully, and when the design does not answer a question they ask rather than improvise. An agent left to decide writes very good median code; a design that closes the decisions is what stops it. Growing from doer to architect is widening the view: a task, a feature, a system, a domain.
 
-- One canonical copy of skills, agents, and rules, git-synced across machines
-- Symlinked wholesale into a harness's config directory -- no per-category special-casing
-- Zero runtime dependencies; `npm install` is only for dev tooling
-- Deliberately minimal: "simple and good enough for one person" over generality
+Dev0 applies to any stack; my examples lean towards the web because that is where I work. It runs on legacy code too, one strangled piece at a time. And it makes being wrong survivable, because fewer parts make reversal cheap.
 
-It began as `capabilities`, scaffolding for [trAIt](https://github.com/tforster/trait). See [`docs/explanation/architecture.md`](./docs/explanation/architecture.md) for the full design rationale and [`docs/reference/prd.md`](./docs/reference/prd.md) for the original design discussion.
+[Agents0](https://github.com/tforster/agents0) is my opinionated companion toolkit -- skills, rules, hooks and agents for Claude Code that apply Dev0. You do not need it. The real test of Dev0 is whether your own agent can apply it from a single prompt, without adopting my tooling.
 
-## Quick Start
-
-**Prerequisites:** Node.js 24+ (npm only for development)
-
-```bash
-# Clone, then link install/{skills,agents,rules} into ~/.claude/ and bin/dev0 into ~/.local/bin
-git clone <repo-url> dev0
-cd dev0
-node bin/dev0 install
-
-# Check what's currently linked
-dev0 status
-
-# Pull/push changes across machines
-dev0 sync
-
-# Scaffold a new skill under install/skills/
-dev0 new skill <name>
-```
-
-For development:
-
-```bash
-npm install                           # dev tooling only
-npm test                              # full test suite (node:test)
-npm run lint                          # oxlint
-npm run format                        # oxfmt --write
-npm run format:check                  # oxfmt --check (no write)
-npm run typecheck                     # tsc --noEmit -p jsconfig.json
-```
-
-## Documentation
-
-Documentation follows the [Diátaxis framework](https://diataxis.fr):
-
-- **[Tutorials](./docs/tutorials/README.md)** — step-by-step guides for getting started
-- **[How-To Guides](./docs/how-to/README.md)** — practical guides for specific tasks
-- **[Reference](./docs/reference/README.md)** — specs and the PRD
-- **[Explanation](./docs/explanation/README.md)** — architecture and design rationale
-
-📚 **Start here:** [Documentation Index](./docs/README.md)
-
-> [!NOTE]
-> Tutorials and how-to guides are still stubs — this is a young, single-user tool. Reference (`prd.md`) and Explanation (`architecture.md`) are the most complete sections today.
-
-## Known Issues
-
-Work is tracked in the Dev0 project in Paca, one epic per phase of the Dev0 framework (`docs/scratch/2026-09-11-dev0-framework.md` §15). The original issue-by-issue build log lives in git history.
-
-## Change Log
-
-No `CHANGELOG.md` yet. For now, `git log` is the change history.
-
-## Contributing
-
-This is a personal, single-user tool and isn't set up to take outside contributions. If you're working in this codebase, `CLAUDE.md` and `docs/explanation/architecture.md` are the places to start.
-
-## License
-
-MIT License — see [LICENSE](./LICENSE) for details.
-
-**Author:** Troy Forster ([@tforster](https://github.com/tforster)) — <troy.forster@gmail.com>
+- **For humans:** [Examples](./examples/README.md) -- case studies of the six tests in practice.
+- **For agents:** [prompt.md](./prompt.md) -- paste it into your agent to add Dev0 to your CLAUDE.md or AGENTS.md.

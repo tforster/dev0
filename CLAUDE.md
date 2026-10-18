@@ -1,39 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working in this repository.
 
 ## What this is
 
-`dev0` is the Dev0 toolkit: a personal, single-harness (Claude-only) repo that keeps `install/{skills,agents,rules}` in sync across machines and symlinks them into `~/.claude/`. Scope test for any addition: does it exist only to serve the Dev0 workflow? **In:** the philosophy, agentic traits (skills, agents, rules, hooks, ADRs), worktree shell functions, project templates. **Out, to the dotfiles repo:** general shell and machine setup (prompt, aliases, PATH, editor). It began as `capabilities`, scaffolding for [trAIt](https://github.com/tforster/trait) -- see `docs/explanation/architecture.md` §2. Favour "simple and good enough for one person" over generality in any change here.
+`dev0` is the Dev0 philosophy and nothing else: `README.md` explains it completely, `prompt.md` lets anyone's agent apply it, and `examples/` holds case studies. There is no code, no tooling and no dependency. The implementation -- skills, rules, hooks, agents and installer for Claude Code -- lives in [Agents0](https://github.com/tforster/agents0), which builds on Dev0. Dev0 never depends on Agents0: nothing here may require it, link into its internals or assume its tooling.
 
-Full design rationale lives in `docs/explanation/architecture.md` (current state) and `prd.md` (design discussion/open items) — read `docs/explanation/architecture.md` first for any non-trivial change.
+## Rules for changes
 
-## Commands
-
-```bash
-npm test                              # full suite (node:test)
-node --test tests/install.test.js     # single file
-node --test --watch                   # watch mode
-npm run lint                          # oxlint
-npm run format                        # oxfmt --write
-npm run format:check                  # oxfmt --check (no write)
-npm run typecheck                     # tsc --noEmit -p jsconfig.json — JSDoc types, no .ts files
-```
-
-**After every change**, run `npm run lint` and `npm run typecheck` (and `npm test` if you touched behaviour) before considering the task done. Type checking is JSDoc-based — this is a plain-JS codebase (`checkJs: true` in `jsconfig.json`, no `.ts` files) — so a missing or wrong `@param`/`@returns` shows up as a `typecheck` failure, not just an IDE nit. `install/` is excluded from all three (it's installable content, not this tool's own source).
-
-## Architecture
-
-- **Entry point**: `bin/dev0` (ESM, no extension) — resolves its own real path via `import.meta.url` so it works when invoked through a symlink (`dev0 install` links it to `~/.local/bin/dev0`, per `dev0.json`'s `bin`). Each subcommand delegates to one `lib/` module; see `docs/explanation/architecture.md` §5 for the map.
-- **One install model for everything**: `skills/`, `agents/`, `rules/` under `install/` are all symlinked wholesale by `lib/install.js` — there is no per-category special-casing anywhere in the codebase (§6). If you're about to add a `agents`-only or `rules`-only code path, that's very likely wrong.
-- **`lib/install.js`'s `install()`/`uninstall()` are two-phase**: validate every link first (each harness category plus the CLI link), build a plan, then apply — so a conflict on link N never leaves links 1..N-1 partially installed (§8). Preserve this when touching install logic.
-- **`lib/status.js`** reuses `lib/install.js`'s `symlinkCategories()` directly rather than duplicating the category map.
-- **`lib/sync.js`** takes its `jj` runner as an injected function rather than shelling out directly — this is what makes its sequencing logic testable without a real git remote. `lib/jj.js` is the only module that shells out via `node:child_process`.
-- **Testing convention**: filesystem-backed modules are tested against real temp directories (`node:fs/promises` + `mkdtemp`), not a mocked `fs` — the behaviour under test _is_ filesystem/symlink manipulation. `sync` is the one module tested with a faked dependency (the injected `jj` runner), since a real git remote is a genuine external boundary. Follow whichever pattern matches the module you're touching.
-- **`bin/dev0` is tested by spawning it as a real child process**, including through a symlink — not by importing its internals.
-
-## Code style
-
-- ESM only (`"type": "module"`), explicit `.js` extensions on local imports
-- JSDoc on all functions; reusable object shapes go in `lib/types.js` as `@typedef`s and are referenced via `import("./types.js").TypeName`, not repeated inline
-- 2-space indent, double quotes, 132 char line width — enforced by `oxfmt` (`.oxfmtrc.json`), not manual
+- **The README stays a few paragraphs.** If Dev0 cannot be expressed that lightly, it contradicts itself. Push detail into an example rather than growing the README.
+- **`prompt.md` stands alone.** It must work pasted into any agent, for any CLAUDE.md or AGENTS.md: it names no skill, file path, harness-specific feature or Agents0 artefact. Agents0 has its own, more detailed Dev0 rule; the two are separate on purpose, so do not sync them.
+- **The definition and the six tests appear in both the README and `prompt.md`.** A change to one is a change to both, in the same PR.
+- **Examples** live at `examples/<slug>/README.md` and follow one outline: title, one-line summary, Table of Contents, then numbered sections Context, Usual approach, Dev0 approach, Tests, Outcome, Trade-offs, and a back link. Every new example gets a row in `examples/README.md`.
+- **No tooling.** Do not add `package.json`, a formatter or a build. Section numbers and ToCs come from the `markdown` skill's scripts.
