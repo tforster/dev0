@@ -8,7 +8,7 @@ Case studies of Dev0's six tests in practice -- less, separate, legibility, nati
 | [TypeScript to JSDoc](./typescript-to-jsdoc/README.md)                                  | beneficiary, less, legibility                         |
 | [A Single-Page App in 17 Lines](./spa-in-17-lines/README.md)                            | beneficiary, native, less                             |
 | [Babel](./babel/README.md)                                                              | beneficiary, less, control                            |
-| [Cloudflare over AWS](./cloudflare-over-aws/README.md)                                  | less, separate, legibility                            |
+| [Cloudflare over AWS](./cloudflare-over-aws/README.md)                                  | less, separate, legibility, beneficiary               |
 | [HTML, CSS and JavaScript in Separate Files](./html-css-js-in-separate-files/README.md) | separate, legibility, native                          |
 | [Handlebars with Only If and Each](./handlebars-if-and-each/README.md)                  | legibility, separate                                  |
 | [Fetch, Not Axios](./fetch-not-axios/README.md)                                         | native, less, control                                 |

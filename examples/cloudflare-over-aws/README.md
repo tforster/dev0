@@ -40,12 +40,12 @@ The same reasoning rules out a container orchestrator for a handful of services:
 - **Separate** -- Cloudflare passes. Each Worker is an isolated, individually tested block with a specific interface. On AWS the functions are just as separate; it is the configuration around them that intertwines.
 - **Legibility** -- Cloudflare passes. A short configuration file you can read top to bottom, against templates where behaviour emerges from many interacting resources.
 - **Native** -- both pass. Both run standard JavaScript; Workers speaks `fetch` natively.
-- **Beneficiary** -- not decisive. Users see a fast response from either.
+- **Beneficiary** -- Cloudflare passes. Users see cold starts around ten times faster than on Lambda.
 - **Control** -- both pass. I control the runtime on either platform.
 
 ## 5. Outcome
 
-On Cloudflare, one developer can understand and own the whole deployment. Separation done right -- many small, isolated functions -- is cheap when the platform does not tax every one of them in configuration.
+On Cloudflare, one developer can understand and own the whole deployment, and users get the faster cold start. Separation done right -- many small, isolated functions -- is cheap when the platform does not tax every one of them in configuration.
 
 ## 6. Trade-offs
 

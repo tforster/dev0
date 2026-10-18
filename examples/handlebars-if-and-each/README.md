@@ -52,7 +52,7 @@ Any template can be read as a page. Bugs in logic surface in tested JavaScript, 
 
 ## 6. Trade-offs
 
-- Data must be shaped for the view beforehand, which adds a small mapping step in JavaScript.
+- Data must be shaped for the view beforehand, in a small mapping step in JavaScript. The step pays for itself: shaping data to match the template is much faster than shaping generic data inside the template, so builds complete almost instantly.
 - Developers used to rich template helpers find the restriction austere at first.
 
 [← Back to Examples](../README.md)

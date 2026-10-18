@@ -13,7 +13,7 @@ Three highly engineered engines, each tuned to its own domain. Use each for what
 
 ## 1. Context
 
-In the late 1990s we had ASP, JSP and PHP -- what I call the \*p problem. Every one of them invited you to interleave HTML, CSS, JavaScript, VBScript, SQL and server code line by line, until no one could say which language they were reading. The industry spent fifteen years climbing out of it.
+In the late 1990s we had ASP, JSP and PHP -- what I call the \*p problem. Every one of them invited you to interleave HTML, CSS and JavaScript with server-side VBScript, Java, PHP and SQL, line by line, until no one could say which language they were reading. The industry spent fifteen years climbing out of it.
 
 ## 2. Usual approach
 
@@ -49,7 +49,7 @@ Pages render without JavaScript and are enhanced by it. Styling changes touch on
 
 ## 6. Trade-offs
 
-- A component's markup, style and behaviour live in three places, so related changes span files.
+- A component's markup, style and behaviour are three files, so related changes span files. I keep one folder per component, so the three sit side by side rather than spread across separate HTML, CSS and JavaScript file trees.
 - Without a framework's conventions, the team needs its own discipline about naming and file layout.
 
 [← Back to Examples](../README.md)

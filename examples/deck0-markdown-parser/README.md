@@ -24,7 +24,7 @@ Reach for a presentation framework, or build the deck in a UI component framewor
 Two decisions, each made against the six tests:
 
 - **Parse Markdown with [`marked`](https://github.com/markedjs/marked).** Parsing CommonMark safely is full of specification edge cases and sanitisation traps. The problem is solved, specialised and bounded; writing my own parser would add more risk than the library does.
-- **Use the document's own structure as the interface.** Ordinary `<h1>` headings mark slide boundaries, rather than an invented metadata syntax, so any Markdown renderer still understands the file.
+- **Use the document's own structure as the interface.** Ordinary `<h1>` headings mark slide boundaries, rather than an invented metadata syntax, so any Markdown renderer still understands the file. Each `<h1>` starts a new slide, which matches HTML's own rule: one `<h1>` per page, or per `<section>`.
 
 ```markdown
 # Why Dev0
@@ -52,6 +52,5 @@ One dependency, justified in writing. Decks stay portable Markdown that renders 
 ## 6. Trade-offs
 
 - `marked` and its updates are now in the supply chain, so it is pinned and reviewed like any other part.
-- Using `<h1>` as the delimiter means a slide cannot contain a second top-level heading.
 
 [← Back to Examples](../README.md)
