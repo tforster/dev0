@@ -1,6 +1,6 @@
 # Handlebars with Only If and Each <!-- omit in toc -->
 
-Handlebars offers all sorts of logic helpers. I allow exactly two: conditionals and loops. Restricted that far, a template still reads as the HTML it produces.
+Handlebars offers an endless supply of logic helpers. I strictly allow exactly two: conditionals and loops. Restricted this heavily, a template still reads exactly as the plain HTML it produces.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -13,19 +13,19 @@ Handlebars offers all sorts of logic helpers. I allow exactly two: conditionals 
 
 ## 1. Context
 
-Server-rendered pages need data in them: names, lists, optional sections. A template engine fills the gap between static HTML and the data.
+Server-rendered pages need dynamic data injected into them: names, lists, optional sections. A template engine exists simply to fill the gap between static HTML and that data.
 
 ## 2. Usual approach
 
-Use whatever the engine offers. Custom helpers format dates, compare values, look up translations and compute classes. Partials pass parameters to partials. Over time the template becomes a program, and the page only exists once it runs.
+Use absolutely every feature the engine offers. Developers write custom helpers to format dates, compare values, look up translations, and compute CSS classes. Partials pass complex parameters to other partials. Over time, the template devolves into a full-blown program, and the structure of the page only becomes visible once it is running.
 
 ## 3. Dev0 approach
 
-Two block helpers and token replacement, nothing else.
+Two block helpers and token replacement. Absolutely nothing else.
 
 - **A conditional** is either in the output or it is not.
-- **A loop** is zero, one or many copies of the same block.
-- **Everything else is token replacement.** `<span class="firstname">{{firstName}}</span>` renders in my head instantly.
+- **A loop** is zero, one, or many copies of the exact same block.
+- **Everything else is strict token replacement.** `<span class="firstname">{{firstName}}</span>` renders in my head instantly.
 
 ```handlebars
 <ul class="members">
@@ -35,24 +35,26 @@ Two block helpers and token replacement, nothing else.
 </ul>
 ```
 
-Anything that needs more logic -- formatting, sorting, deciding -- is done in JavaScript before the data reaches the template, where it can be tested.
+Anything that requires more complex logic—formatting, sorting, deciding—is done in standard Vanilla JS _before_ the data ever reaches the template. Logic belongs where it can be tested.
 
 ## 4. Tests
 
-- **Less** -- pass. No custom helpers to write, register, test and maintain.
-- **Separate** -- pass. Logic lives in JavaScript; the template only places data.
-- **Legibility** -- pass. The template reads as the HTML it produces, with predictable holes.
-- **Native** -- not decisive. A template engine is an addition, justified because the restricted subset stays close to plain HTML.
-- **Beneficiary** -- pass. Pages are rendered on the server, so users receive plain HTML.
-- **Control** -- not decisive.
+| Test            | Dev0 (Restricted) | Usual Approach | Rationale                                                                                                                                           |
+| :-------------- | :---------------: | :------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Less**        |        ✅         |       ❌       | No custom helpers to write, register, test, and maintain over years.                                                                                |
+| **Separate**    |        ✅         |       ❌       | Logic lives strictly in JavaScript; the template only places data. The usual approach hopelessly intertwines logic and view.                        |
+| **Legibility**  |        ✅         |       ❌       | The template reads identically to the HTML it produces, just with predictable holes. Complex templates read like un-runnable code.                  |
+| **Native**      |        ➖         |       ➖       | Not decisive here. A template engine is technically an addition, justified only because the restricted subset stays incredibly close to plain HTML. |
+| **Beneficiary** |        ✅         |       ❌       | Pages are rendered strictly on the server, ensuring the user receives instant, plain HTML.                                                          |
+| **Control**     |        ➖         |       ➖       | Not decisive here.                                                                                                                                  |
 
 ## 5. Outcome
 
-Any template can be read as a page. Bugs in logic surface in tested JavaScript, not in a template that only fails at render time.
+Any template in the system can be read natively as a page. Bugs in logic surface during standard JavaScript testing, not deep inside a template that only fails at render time.
 
 ## 6. Trade-offs
 
-- Data must be shaped for the view beforehand, in a small mapping step in JavaScript. The step pays for itself: shaping data to match the template is much faster than shaping generic data inside the template, so builds complete almost instantly.
-- Developers used to rich template helpers find the restriction austere at first.
+- Data must be deliberately shaped for the view beforehand using a small mapping step in JavaScript. This view-mapping step actually pays for itself: mapping data strictly to match the template is significantly faster than computing generic data inside the template at render time, so builds complete almost instantly.
+- Developers accustomed to rich, bloated template helpers often find this restriction austere at first.
 
 [← Back to Examples](../README.md)
