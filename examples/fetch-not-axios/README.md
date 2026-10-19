@@ -13,44 +13,47 @@ I have used `fetch` thousands of times, in browsers and on servers, and I have n
 
 ## 1. Context
 
-Every application makes HTTP requests. Axios appeared in 2014 and became the default HTTP client for a generation of JavaScript projects. Browsers shipped `fetch` in 2015; Node took until version 18.
+Every application makes HTTP requests. Axios appeared in 2014 and quickly became the default HTTP client for an entire generation of JavaScript projects. Browsers shipped `fetch` natively in 2015, whilst Node took until version 18.
 
 ## 2. Usual approach
 
-`npm install axios`, on the grounds that it is easier: automatic JSON, interceptors, a familiar API. Most projects still install it today, in runtimes that have shipped `fetch` for years.
+`npm install axios`, entirely on the grounds that it feels "easier"—automatic JSON parsing, interceptors, and a familiar API. The industry is so driven by momentum that most projects still blindly install it today, even in runtimes that have shipped native `fetch` for years.
 
 ## 3. Dev0 approach
 
-Use `fetch`. I adopted it before it was native everywhere: a polyfill (`whatwg-fetch`) in older browsers, and `node-fetch` on the server until Node shipped `fetch` itself. A polyfill implements the standard, so when the platform catches up you remove one import and nothing else changes.
+Just use `fetch`. I adopted it long before it was native everywhere: using a polyfill (`whatwg-fetch`) in older browsers, and `node-fetch` on the server until Node shipped `fetch` itself. A polyfill strictly implements the standard. When the platform finally catches up, you simply remove one import statement and absolutely nothing else changes.
 
-```js
+```javascript
 const response = await fetch("/api/members", {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify(member),
 });
+
 if (!response.ok) throw new Error(`Saving member failed: ${response.status}`);
 return await response.json();
 ```
 
-Axios handles a few rare edge cases. If I ever met one, I would write a few lines around `fetch` and be done.
+Axios handles a few rare edge cases out of the box. If I ever actually encountered one, I would write a few lines of Vanilla JS around `fetch` and be done with it.
 
 ## 4. Tests
 
-- **Less** -- Axios fails. A library and its transitive tree, to wrap an API the runtime already ships.
-- **Separate** -- not decisive.
-- **Legibility** -- pass. `fetch` is the same API in every browser, worker and server.
-- **Native** -- Axios fails; `fetch` passes. The polyfills passed too: they implemented the standard and were deleted when it arrived.
-- **Beneficiary** -- Axios fails in the browser. Users download a library so developers can skip writing `response.json()`.
-- **Control** -- the reason for the polyfills. Where I did not control the runtime, I filled the gap with the standard, not an alternative to it.
+| Test            | Native `fetch` | Axios | Rationale                                                                                                                                                |
+| :-------------- | :------------: | :---: | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Less**        |       ✅       |  ❌   | Axios introduces a library and its entire transitive dependency tree just to wrap an API the runtime already ships.                                      |
+| **Separate**    |       ➖       |  ➖   | Not decisive here.                                                                                                                                       |
+| **Legibility**  |       ✅       |  ❌   | `fetch` is exactly the same standard API in every single browser, worker, and server.                                                                    |
+| **Native**      |       ✅       |  ❌   | `fetch` is built-in. Even the polyfills passed this test: they implemented the native standard and were instantly deleted when it arrived.               |
+| **Beneficiary** |       ✅       |  ❌   | Axios fails completely in the browser. End users are forced to download a library simply so the developer can skip typing `.json()`.                     |
+| **Control**     |       ✅       |  ❌   | This is exactly why I used polyfills. Where I did not control the runtime, I filled the gap with the standard itself, not a permanent alternative to it. |
 
 ## 5. Outcome
 
-When browsers and Node caught up, removing the polyfills was a one-line change each. There was never a migration away from a second API, because there was never a second API.
+When browsers and Node finally caught up, removing the polyfills was a single-line deletion in each environment. There was never a massive, painful migration away from a second API, because there was never a second API to begin with.
 
 ## 6. Trade-offs
 
-- `fetch` does not reject on HTTP error statuses; checking `response.ok` is my job.
-- Upload progress and request timeouts need `AbortController` or a few lines of my own, not a configuration option.
+- `fetch` does not automatically reject on HTTP error statuses; explicitly checking `response.ok` is my job.
+- Upload progress and request timeouts require using the native `AbortController` or writing a few lines of my own, rather than just flipping a configuration option.
 
 [← Back to Examples](../README.md)
